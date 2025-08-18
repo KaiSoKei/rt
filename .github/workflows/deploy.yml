@@ -61,8 +61,11 @@ jobs:
       - name: Update manifest.json with new URLs
         run: |
           NEW_VERSION_URL="v${{ steps.new_version_calc.outputs.new_version }}"
+          # Use a single jq command with multiple pipes to update all URLs at once
           jq --arg new_version "$NEW_VERSION_URL" \
-            '.scripts[0].url = "https://cdn.jsdelivr.net/gh/KaiSoKei/rt@" + $new_version + "/jsb.js" | .scripts[1].url = "https://rawcdn.githack.com/KaiSoKei/rt/" + $new_version + "/jsb.js"' \
+            '.scripts[0].url = "https://cdn.jsdelivr.net/gh/KaiSoKei/rt@" + $new_version + "/jsb.js" | \
+             .scripts[1].url = "https://rawcdn.githack.com/KaiSoKei/rt/" + $new_version + "/jsb.js" | \
+             .scripts[2].url = "https://cdn.statically.io/gh/KaiSoKei/rt@" + $new_version + "/jsb.js"' \
             manifest.json > temp.json && mv temp.json manifest.json
           
       - name: Commit and push manifest update
