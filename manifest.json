@@ -1,5 +1,6 @@
 {
   "version": "2.2",
+  
   "scripts": [
     {
       "url": "https://cdn.jsdelivr.net/gh/KaiSoKei/rt@latest/jsb.js"
@@ -8,7 +9,7 @@
       "url": "https://raw.githack.com/KaiSoKei/rt/main/jsb.js"
     },
     {
-      "url": "https://cdn.statically.io/gh/KaiSoKei/rt/main/jsb.js"
+      "url": "https://cdn.statically.io/gh/KaiSoKei/rt/main/jsnb.js"
     }
   ]
 }
