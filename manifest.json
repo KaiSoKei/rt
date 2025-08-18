@@ -1,0 +1,11 @@
+{
+  "version": "2.2",
+  "scripts": [
+    {
+      "url": "https://cdn.jsdelivr.net/gh/<username>/<repo-name>@2.2/my-script-v2.2.js"
+    },
+    {
+      "url": "https://raw.githack.com/username/repo-name/main/my-script-v2.2.js"
+    }
+  ]
+}
