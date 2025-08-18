@@ -1,4 +1,4 @@
-
+//test
 (async function() {
     // Function to display messages to the user in the UI
     function showMessage(message, type) {
