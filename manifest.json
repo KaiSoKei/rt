@@ -2,10 +2,10 @@
   "version": "2.2",
   "scripts": [
     {
-      "url": "https://cdn.jsdelivr.net/gh/<username>/<repo-name>@2.2/my-script-v2.2.js"
+      "url": "https://cdn.jsdelivr.net/gh/KaiSoKei/rt@latest/jsb.js"
     },
     {
-      "url": "https://raw.githack.com/username/repo-name/main/my-script-v2.2.js"
+      "url": "https://rawcdn.githack.com/KaiSoKei/rt/f3e777434993f01a75cba979503df6ef7300fe99/jsb.js"
     }
   ]
 }
