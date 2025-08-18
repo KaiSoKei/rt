@@ -6,6 +6,9 @@
     },
     {
       "url": "https://raw.githack.com/KaiSoKei/rt/main/jsb.js"
+    },
+    {
+      "url": "https://cdn.statically.io/gh/KaiSoKei/rt/main/jsb.js"
     }
   ]
 }
