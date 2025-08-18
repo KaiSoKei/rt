@@ -1,0 +1,70 @@
+name: Automated Release & Manifest Update
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'jsb.js'
+
+jobs:
+  release-and-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+          
+      - name: Get current version from manifest
+        id: get_version
+        run: |
+          VERSION=$(jq -r '.version' manifest.json)
+          echo "::set-output name=version::$VERSION"
+
+      - name: Calculate new version number
+        id: new_version_calc
+        run: |
+          CURRENT_VERSION="${{ steps.get_version.outputs.version }}"
+          MAJOR=$(echo $CURRENT_VERSION | cut -d'.' -f1)
+          MINOR=$(echo $CURRENT_VERSION | cut -d'.' -f2)
+          NEW_MINOR=$((MINOR + 1))
+          NEW_VERSION="$MAJOR.$NEW_MINOR"
+          echo "::set-output name=new_version::$NEW_VERSION"
+
+      - name: Create new Git tag and release
+        id: create_release
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const { new_version } = process.env;
+            const tagName = `v${new_version}`;
+            await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: tagName,
+              name: `Release ${tagName}`,
+              body: 'Automated release triggered by a change to jsb.js',
+              prerelease: false
+            });
+            console.log(`Created release with tag: ${tagName}`);
+        env:
+          new_version: ${{ steps.new_version_calc.outputs.new_version }}
+            
+      - name: Update manifest.json with new URLs
+        run: |
+          NEW_VERSION_URL="v${{ steps.new_version_calc.outputs.new_version }}"
+          jq --arg new_version "$NEW_VERSION_URL" \
+            '.scripts[0].url = "https://cdn.jsdelivr.net/gh/KaiSoKei/rt@" + $new_version + "/jsb.js" | .scripts[1].url = "https://rawcdn.githack.com/KaiSoKei/rt/" + $new_version + "/jsb.js"' \
+            manifest.json > temp.json && mv temp.json manifest.json
+          
+      - name: Commit and push manifest update
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git add manifest.json
+          git commit -m "chore: Automated manifest update to version ${{ steps.new_version_calc.outputs.new_version }}"
+          git push
