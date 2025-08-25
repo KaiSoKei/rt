@@ -2,15 +2,14 @@ name: Automated Release & Manifest Update
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - 'jsb.js'
+    branches: [main]
+    paths: ['jsb.js']
+
 permissions:
   contents: write
   deployments: write
   checks: write
-  
+
 jobs:
   release-and-update:
     runs-on: ubuntu-latest
@@ -22,30 +21,35 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '14'
-          
+
+      # -------- get version -------------------------------------------------
       - name: Get current version from manifest
         id: get_version
         run: |
           VERSION=$(jq -r '.version' manifest.json)
-          echo "::set-output name=version::$VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
+      # -------- compute next version -----------------------------------------
       - name: Calculate new version number
         id: new_version_calc
         run: |
           CURRENT_VERSION="${{ steps.get_version.outputs.version }}"
-          MAJOR=$(echo $CURRENT_VERSION | cut -d'.' -f1)
-          MINOR=$(echo $CURRENT_VERSION | cut -d'.' -f2)
+          MAJOR=$(echo "$CURRENT_VERSION" | cut -d'.' -f1)
+          MINOR=$(echo "$CURRENT_VERSION" | cut -d'.' -f2)
           NEW_MINOR=$((MINOR + 1))
-          NEW_VERSION="$MAJOR.$NEW_MINOR"
-          echo "::set-output name=new_version::$NEW_VERSION"
+          NEW_VERSION="${MAJOR}.${NEW_MINOR}"
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
+      # -------- create GitHub release ----------------------------------------
       - name: Create new Git tag and release
         id: create_release
         uses: actions/github-script@v5
+        env:
+          NEW_VER: ${{ steps.new_version_calc.outputs.new_version }}
         with:
           script: |
-            const { new_version } = process.env;
-            const tagName = `v${new_version}`;
+            const newVersion = process.env.NEW_VER;
+            const tagName = `v${newVersion}`;
             await github.rest.repos.createRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -55,19 +59,19 @@ jobs:
               prerelease: false
             });
             console.log(`Created release with tag: ${tagName}`);
-        env:
-          new_version: ${{ steps.new_version_calc.outputs.new_version }}
-            
+
+      # -------- update manifest -----------------------------------------------
       - name: Update manifest.json with new URLs
+        env:
+          NEW_VERSION_URL: v${{ steps.new_version_calc.outputs.new_version }}
         run: |
-          NEW_VERSION_URL="v${{ steps.new_version_calc.outputs.new_version }}"
-          # Use a single jq command with multiple pipes to update all URLs at once
-          jq --arg new_version "$NEW_VERSION_URL" \
-            '.scripts[0].url = "https://cdn.jsdelivr.net/gh/KaiSoKei/rt@" + $new_version + "/jsb.js" | \
-             .scripts[1].url = "https://rawcdn.githack.com/KaiSoKei/rt/" + $new_version + "/jsb.js" | \
-             .scripts[2].url = "https://cdn.statically.io/gh/KaiSoKei/rt@" + $new_version + "/jsb.js"' \
-            manifest.json > temp.json && mv temp.json manifest.json
-          
+          jq --arg new_version "$NEW_VERSION_URL" '
+            .scripts[0].url = ("https://cdn.jsdelivr.net/gh/KaiSoKei/rt@" + $new_version + "/jsb.js") |
+            .scripts[1].url = ("https://rawcdn.githack.com/KaiSoKei/rt/" + $new_version + "/jsb.js") |
+            .scripts[2].url = ("https://cdn.statically.io/gh/KaiSoKei/rt@" + $new_version + "/jsb.js")
+          ' manifest.json > manifest.tmp && mv manifest.tmp manifest.json
+
+      # -------- commit the manifest change ------------------------------------
       - name: Commit and push manifest update
         run: |
           git config --global user.name 'github-actions'
