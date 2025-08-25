@@ -3,7 +3,7 @@ name: Automated Release & Manifest Update
 on:
   push:
     branches: [main]
-    paths: ['jsb.js']
+    paths: ['watch.1654845212214.js']
 
 permissions:
   contents: write
@@ -61,14 +61,15 @@ jobs:
             console.log(`Created release with tag: ${tagName}`);
 
       # -------- update manifest -----------------------------------------------
-      - name: Update manifest.json with new URLs
+      - name: Update manifest.json with new version & URLs
         env:
-          NEW_VERSION_URL: v${{ steps.new_version_calc.outputs.new_version }}
+          NEW_VERSION: ${{ steps.new_version_calc.outputs.new_version }}
         run: |
-          jq --arg new_version "$NEW_VERSION_URL" '
-            .scripts[0].url = ("https://cdn.jsdelivr.net/gh/KaiSoKei/rt@" + $new_version + "/jsb.js") |
-            .scripts[1].url = ("https://rawcdn.githack.com/KaiSoKei/rt/" + $new_version + "/jsb.js") |
-            .scripts[2].url = ("https://cdn.statically.io/gh/KaiSoKei/rt@" + $new_version + "/jsb.js")
+          jq --arg new_version "$NEW_VERSION" '
+            .version = $new_version |
+            .scripts[0].url = ("https://cdn.jsdelivr.net/gh/KaiSoKei/rt@v" + $new_version + "/watch.1654845212214.js") |
+            .scripts[1].url = ("https://rawcdn.githack.com/KaiSoKei/rt/v" + $new_version + "/watch.1654845212214.js") |
+            .scripts[2].url = ("https://cdn.statically.io/gh/KaiSoKei/rt@v" + $new_version + "/watch.1654845212214.js")
           ' manifest.json > manifest.tmp && mv manifest.tmp manifest.json
 
       # -------- commit the manifest change ------------------------------------
