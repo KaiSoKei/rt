@@ -1,14 +1,14 @@
 {
-  "version": "0.10",
+  "version": "0.11",
   "scripts": [
     {
-      "url": "https://cdn.jsdelivr.net/gh/KaiSoKei/rt@v0.10/watch.1654845212214.js"
+      "url": "https://cdn.jsdelivr.net/gh/KaiSoKei/rt@v0.11/watch.1654845212214.js"
     },
     {
-      "url": "https://rawcdn.githack.com/KaiSoKei/rt/v0.10/watch.1654845212214.js"
+      "url": "https://rawcdn.githack.com/KaiSoKei/rt/v0.11/watch.1654845212214.js"
     },
     {
-      "url": "https://cdn.statically.io/gh/KaiSoKei/rt@v0.10/watch.1654845212214.js"
+      "url": "https://cdn.statically.io/gh/KaiSoKei/rt@v0.11/watch.1654845212214.js"
     }
   ]
 }
