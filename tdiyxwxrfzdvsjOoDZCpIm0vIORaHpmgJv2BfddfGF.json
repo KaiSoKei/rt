@@ -1,0 +1,14 @@
+{
+  "version": "0.18",
+  "scripts": [
+    {
+      "url": "https://cdn.jsdelivr.net/gh/KaiSoKei/rt@v0.18/main-chunk-212214.js"
+    },
+    {
+      "url": "https://rawcdn.githack.com/KaiSoKei/rt/v0.18/main-chunk-212214.js"
+    },
+    {
+      "url": "https://cdn.statically.io/gh/KaiSoKei/rt@v0.18/main-chunk-212214.js"
+    }
+  ]
+}
